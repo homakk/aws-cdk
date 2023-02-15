@@ -1266,7 +1266,7 @@ describe('ec2 service', () => {
       expect(service.node.metadata[1].data).toEqual('Deployment circuit breaker requires the ECS deployment controller.');
     });
 
-    test('add alarm config wjile service is constructed if deploymentAlarms config is specified with no behavior', () => {
+    test('add alarm config while service is constructed if deploymentAlarms config is specified with no behavior', () => {
       // GIVEN
       const stack = new cdk.Stack();
       const vpc = new ec2.Vpc(stack, 'MyVpc', {});
@@ -1301,7 +1301,7 @@ describe('ec2 service', () => {
       expect(alarms.alarmNames).toEqual([myAlarm.alarmName]);
     });
 
-    test('add alarm config wjile service is constructed if deploymentAlarms config is specified with rollback behavior', () => {
+    test('add alarm config while service is constructed if deploymentAlarms config is specified with rollback behavior', () => {
       // GIVEN
       const stack = new cdk.Stack();
       const vpc = new ec2.Vpc(stack, 'MyVpc', {});
@@ -1337,7 +1337,7 @@ describe('ec2 service', () => {
       expect(alarms.alarmNames).toEqual([myAlarm.alarmName]);
     });
 
-    test('add alarm config wjile service is constructed if deploymentAlarms config is specified with failed behavior', () => {
+    test('add alarm config while service is constructed if deploymentAlarms config is specified with failed behavior', () => {
       // GIVEN
       const stack = new cdk.Stack();
       const vpc = new ec2.Vpc(stack, 'MyVpc', {});
