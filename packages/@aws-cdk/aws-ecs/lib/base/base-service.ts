@@ -1,6 +1,5 @@
 import * as appscaling from '@aws-cdk/aws-applicationautoscaling';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
-import { IAlarm } from '@aws-cdk/aws-cloudwatch';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as elb from '@aws-cdk/aws-elasticloadbalancing';
 import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
@@ -99,7 +98,7 @@ export interface DeploymentAlarmConfig {
   /**
    * List of alarms
    */
-  readonly alarms: IAlarm[];
+  readonly alarms: cloudwatch.IAlarm[];
 }
 
 export interface EcsTarget {
@@ -590,7 +589,7 @@ export abstract class BaseService extends Resource
         alarms: props.deploymentAlarms ? {
           alarmNames: props.deploymentAlarms.alarms.map(alarm => alarm.alarmName),
           enable: true,
-          rollback: props.deploymentAlarms.behavior ? props.deploymentAlarms.behavior !== AlarmBehavior.FAIL_ON_ALARM : true,
+          rollback: props.deploymentAlarms.behavior !== AlarmBehavior.FAIL_ON_ALARM,
         } : undefined,
       },
       propagateTags: propagateTagsFromSource === PropagatedTagSource.NONE ? undefined : props.propagateTags,

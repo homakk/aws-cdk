@@ -1285,7 +1285,7 @@ describe('ec2 service', () => {
         cluster,
         taskDefinition,
         deploymentController: {
-          type: DeploymentControllerType.EXTERNAL,
+          type: DeploymentControllerType.ECS,
         },
         deploymentAlarms: {
           alarms: [myAlarm],
@@ -1293,7 +1293,6 @@ describe('ec2 service', () => {
       });
 
       // THEN
-      expect(service.node.metadata[0].data).toEqual('taskDefinition and launchType are blanked out when using external deployment controller.');
       const config = (service.node.defaultChild as CfnService).deploymentConfiguration as CfnService.DeploymentConfigurationProperty;
       const alarms = config.alarms as CfnService.DeploymentAlarmsProperty;
       expect(alarms.enable).toBe(true);
@@ -1320,7 +1319,7 @@ describe('ec2 service', () => {
         cluster,
         taskDefinition,
         deploymentController: {
-          type: DeploymentControllerType.EXTERNAL,
+          type: DeploymentControllerType.ECS,
         },
         deploymentAlarms: {
           alarms: [myAlarm],
@@ -1329,7 +1328,6 @@ describe('ec2 service', () => {
       });
 
       // THEN
-      expect(service.node.metadata[0].data).toEqual('taskDefinition and launchType are blanked out when using external deployment controller.');
       const config = (service.node.defaultChild as CfnService).deploymentConfiguration as CfnService.DeploymentConfigurationProperty;
       const alarms = config.alarms as CfnService.DeploymentAlarmsProperty;
       expect(alarms.enable).toBe(true);
@@ -1356,7 +1354,7 @@ describe('ec2 service', () => {
         cluster,
         taskDefinition,
         deploymentController: {
-          type: DeploymentControllerType.EXTERNAL,
+          type: DeploymentControllerType.ECS,
         },
         deploymentAlarms: {
           alarms: [myAlarm],
@@ -1365,7 +1363,6 @@ describe('ec2 service', () => {
       });
 
       // THEN
-      expect(service.node.metadata[0].data).toEqual('taskDefinition and launchType are blanked out when using external deployment controller.');
       const config = (service.node.defaultChild as CfnService).deploymentConfiguration as CfnService.DeploymentConfigurationProperty;
       const alarms = config.alarms as CfnService.DeploymentAlarmsProperty;
       expect(alarms.enable).toBe(true);
