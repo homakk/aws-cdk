@@ -11,9 +11,7 @@ const vpc = new ec2.Vpc(stack, 'Vpc', { maxAzs: 2 });
 const cluster = new ecs.Cluster(stack, 'EC2CPCluster', {
   vpc,
   enableFargateCapacityProviders: true,
-  defaultCapacityProviderStrategy: [
-    { capacityProvider: 'EC2', base: 10, weight: 50 },
-  ],
+  defaultCapacityProviderStrategy: [],
 });
 
 const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'TaskDef');
