@@ -48,7 +48,7 @@ new ecs.Ec2Service(stack, 'EC2Service', {
     alarms: [myAlarm],
   },
 });
-new integ.IntegTest(app, 'CapacityProviders', {
+new integ.IntegTest(app, 'DeploymentAlarms', {
   testCases: [stack],
 });
 app.synth();
