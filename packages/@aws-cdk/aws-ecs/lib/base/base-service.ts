@@ -69,7 +69,7 @@ export interface DeploymentCircuitBreaker {
 }
 
 /**
- * Alarm behavior of an ECS service
+ * Deployment behavior when an ECS Service Deployment Alarm is triggered
  */
 export enum AlarmBehavior {
   /**

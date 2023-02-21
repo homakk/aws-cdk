@@ -13,7 +13,6 @@ import * as cdk from '@aws-cdk/core';
 import { App } from '@aws-cdk/core';
 import { ECS_ARN_FORMAT_INCLUDES_CLUSTER_NAME } from '@aws-cdk/cx-api';
 import * as ecs from '../../lib';
-import { CfnService } from '../../lib';
 import { AlarmBehavior, DeploymentControllerType, LaunchType, PropagatedTagSource } from '../../lib/base/base-service';
 import { PlacementConstraint, PlacementStrategy } from '../../lib/placement';
 import { addDefaultCapacityProvider } from '../util';
@@ -1281,7 +1280,7 @@ describe('ec2 service', () => {
 
       const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
 
-      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+      new ecs.Ec2Service(stack, 'Ec2Service', {
         cluster,
         taskDefinition,
         deploymentController: {
@@ -1293,11 +1292,16 @@ describe('ec2 service', () => {
       });
 
       // THEN
-      const config = (service.node.defaultChild as CfnService).deploymentConfiguration as CfnService.DeploymentConfigurationProperty;
-      const alarms = config.alarms as CfnService.DeploymentAlarmsProperty;
-      expect(alarms.enable).toBe(true);
-      expect(alarms.rollback).toBe(true);
-      expect(alarms.alarmNames).toEqual([myAlarm.alarmName]);
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::ECS::Service', {
+        DeploymentConfiguration: {
+          Alarms: {
+            Enable: true,
+            Rollback: true,
+            AlarmNames: [myAlarm.alarmName],
+          },
+        },
+      });
     });
 
     test('add alarm config while service is constructed if deploymentAlarms config is specified with rollback behavior', () => {
@@ -1315,7 +1319,7 @@ describe('ec2 service', () => {
 
       const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
 
-      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+      new ecs.Ec2Service(stack, 'Ec2Service', {
         cluster,
         taskDefinition,
         deploymentController: {
@@ -1326,13 +1330,17 @@ describe('ec2 service', () => {
           behavior: AlarmBehavior.ROLLBACK_ON_ALARM,
         },
       });
-
       // THEN
-      const config = (service.node.defaultChild as CfnService).deploymentConfiguration as CfnService.DeploymentConfigurationProperty;
-      const alarms = config.alarms as CfnService.DeploymentAlarmsProperty;
-      expect(alarms.enable).toBe(true);
-      expect(alarms.rollback).toBe(true);
-      expect(alarms.alarmNames).toEqual([myAlarm.alarmName]);
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::ECS::Service', {
+        DeploymentConfiguration: {
+          Alarms: {
+            Enable: true,
+            Rollback: true,
+            AlarmNames: [myAlarm.alarmName],
+          },
+        },
+      });
     });
 
     test('add alarm config while service is constructed if deploymentAlarms config is specified with failed behavior', () => {
@@ -1350,7 +1358,7 @@ describe('ec2 service', () => {
 
       const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
 
-      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+      new ecs.Ec2Service(stack, 'Ec2Service', {
         cluster,
         taskDefinition,
         deploymentController: {
@@ -1363,11 +1371,16 @@ describe('ec2 service', () => {
       });
 
       // THEN
-      const config = (service.node.defaultChild as CfnService).deploymentConfiguration as CfnService.DeploymentConfigurationProperty;
-      const alarms = config.alarms as CfnService.DeploymentAlarmsProperty;
-      expect(alarms.enable).toBe(true);
-      expect(alarms.rollback).toBe(false);
-      expect(alarms.alarmNames).toEqual([myAlarm.alarmName]);
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::ECS::Service', {
+        DeploymentConfiguration: {
+          Alarms: {
+            Enable: true,
+            Rollback: false,
+            AlarmNames: [myAlarm.alarmName],
+          },
+        },
+      });
     });
 
     test('errors if daemon and desiredCount both specified', () => {
