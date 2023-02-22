@@ -934,9 +934,6 @@
      "MaximumPercent": 200,
      "MinimumHealthyPercent": 50
     },
-    "DeploymentController": {
-     "Type": "ECS"
-    },
     "EnableECSManagedTags": false,
     "LaunchType": "EC2",
     "SchedulingStrategy": "REPLICA",
