@@ -1280,20 +1280,19 @@ describe('ec2 service', () => {
 
       const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
 
-      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
-        cluster,
-        taskDefinition,
-        deploymentController: {
-          type: DeploymentControllerType.EXTERNAL,
-        },
-        deploymentAlarms: {
-          alarms: [myAlarm],
-        },
-      });
-
       // THEN
-      expect(service.node.metadata[0].data).toEqual('taskDefinition and launchType are blanked out when using external deployment controller.');
-      expect(service.node.metadata[1].data).toEqual('Deployment alarms requires the ECS deployment controller.');
+      expect(() => {
+        new ecs.Ec2Service(stack, 'Ec2Service', {
+          cluster,
+          taskDefinition,
+          deploymentController: {
+            type: DeploymentControllerType.EXTERNAL,
+          },
+          deploymentAlarms: {
+            alarms: [myAlarm],
+          },
+        });
+      }).toThrow('Deployment alarms requires the ECS deployment controller.');
     });
 
     test('add alarm config while service is constructed if deploymentAlarms config is specified with no behavior', () => {

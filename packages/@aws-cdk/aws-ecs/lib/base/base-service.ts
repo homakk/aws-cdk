@@ -619,7 +619,7 @@ export abstract class BaseService extends Resource
     if (props.deploymentAlarms
         && deploymentController
         && deploymentController.type !== DeploymentControllerType.ECS) {
-      Annotations.of(this).addError('Deployment alarms requires the ECS deployment controller.');
+      throw new Error('Deployment alarms requires the ECS deployment controller.');
     }
     if (props.deploymentController?.type === DeploymentControllerType.CODE_DEPLOY) {
       // Strip the revision ID from the service's task definition property to
