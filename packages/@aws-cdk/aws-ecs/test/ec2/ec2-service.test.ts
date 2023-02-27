@@ -1475,7 +1475,7 @@ describe('ec2 service', () => {
         service.enableDeploymentAlarms({
           alarms: [],
         });
-      }).toThrow('Alarms must be one or more.');
+      }).toThrow('Specify at least one deployment alarm');
     });
 
     test('alarm behavior defaults to "ROLLBACK"', () => {

@@ -580,11 +580,7 @@ export abstract class BaseService extends Resource
     const propagateTagsFromSource = props.propagateTaskTagsFrom ?? props.propagateTags ?? PropagatedTagSource.NONE;
     const deploymentController = this.getDeploymentController(props);
     if (props.deploymentAlarms) {
-      this.deploymentAlarms = {
-        alarmNames: props.deploymentAlarms.alarms.map(alarm => alarm.alarmName),
-        enable: true,
-        rollback: props.deploymentAlarms.behavior !== AlarmBehavior.FAIL_ON_ALARM,
-      };
+      this.enableDeploymentAlarms(props.deploymentAlarms);
     }
 
     this.resource = new CfnService(this, 'Service', {
@@ -679,7 +675,7 @@ export abstract class BaseService extends Resource
     }
     // Throw an error if alarms array is empty
     if (alarmConfig.alarms.length === 0) {
-      throw new Error('Alarms must be one or more.');
+      throw new Error('Specify at least one deployment alarm');
     }
     this.deploymentAlarms = {
       alarmNames: alarmConfig.alarms.map(alarm => alarm.alarmName),
