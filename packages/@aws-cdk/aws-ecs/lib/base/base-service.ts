@@ -19,12 +19,12 @@ import {
 import * as cxapi from '@aws-cdk/cx-api';
 
 import { Construct } from 'constructs';
+import { ScalableTaskCount } from './scalable-task-count';
 import { LoadBalancerTargetOptions, NetworkMode, TaskDefinition } from '../base/task-definition';
 import { ICluster, CapacityProviderStrategy, ExecuteCommandLogging, Cluster } from '../cluster';
 import { ContainerDefinition, Protocol } from '../container-definition';
 import { CfnService } from '../ecs.generated';
 import { LogDriver, LogDriverConfig } from '../log-drivers/log-driver';
-import { ScalableTaskCount } from './scalable-task-count';
 
 /**
  * The interface for a service.
@@ -534,6 +534,11 @@ export abstract class BaseService extends Resource
   protected networkConfiguration?: CfnService.NetworkConfigurationProperty;
 
   /**
+   * Deployment alarms config
+   */
+  protected deploymentAlarms?: CfnService.DeploymentAlarmsProperty;
+
+  /**
    * The details of the service discovery registries to assign to this service.
    * For more information, see Service Discovery.
    */
@@ -574,6 +579,9 @@ export abstract class BaseService extends Resource
 
     const propagateTagsFromSource = props.propagateTaskTagsFrom ?? props.propagateTags ?? PropagatedTagSource.NONE;
     const deploymentController = this.getDeploymentController(props);
+    if (props.deploymentAlarms) {
+      this.enableDeploymentAlarms(props.deploymentAlarms);
+    }
 
     this.resource = new CfnService(this, 'Service', {
       desiredCount: props.desiredCount,
@@ -586,11 +594,7 @@ export abstract class BaseService extends Resource
           enable: true,
           rollback: props.circuitBreaker.rollback ?? false,
         } : undefined,
-        alarms: props.deploymentAlarms ? {
-          alarmNames: props.deploymentAlarms.alarms.map(alarm => alarm.alarmName),
-          enable: true,
-          rollback: props.deploymentAlarms.behavior !== AlarmBehavior.FAIL_ON_ALARM,
-        } : undefined,
+        alarms: Lazy.any({ produce: () => this.deploymentAlarms }),
       },
       propagateTags: propagateTagsFromSource === PropagatedTagSource.NONE ? undefined : props.propagateTags,
       enableEcsManagedTags: props.enableECSManagedTags ?? false,
@@ -659,6 +663,25 @@ export abstract class BaseService extends Resource
       }
     }
     this.node.defaultChild = this.resource;
+  }
+
+  /**
+   *   Enable Deployment Alarms which take advantage of arbitrary alarms and configure them after service initialization
+  */
+  public enableDeploymentAlarms(alarmConfig: DeploymentAlarmConfig) {
+    // Throw an error if deployment alarms are already configured
+    if (this.deploymentAlarms) {
+      throw new Error('Deployment alarms are already configured.');
+    }
+    // Throw an error if alarms array is empty
+    if (alarmConfig.alarms.length === 0) {
+      throw new Error('Specify at least one deployment alarm');
+    }
+    this.deploymentAlarms = {
+      alarmNames: alarmConfig.alarms.map(alarm => alarm.alarmName),
+      enable: true,
+      rollback: alarmConfig.behavior !== AlarmBehavior.FAIL_ON_ALARM,
+    };
   }
 
   /**   * Enable Service Connect
