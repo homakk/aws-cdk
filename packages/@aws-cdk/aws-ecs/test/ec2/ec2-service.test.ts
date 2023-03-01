@@ -13,7 +13,7 @@ import * as cdk from '@aws-cdk/core';
 import { App } from '@aws-cdk/core';
 import { ECS_ARN_FORMAT_INCLUDES_CLUSTER_NAME } from '@aws-cdk/cx-api';
 import * as ecs from '../../lib';
-import { AlarmBehavior, DeploymentControllerType, LaunchType, PropagatedTagSource } from '../../lib/base/base-service';
+import { AlarmBehavior, DeploymentControllerType, EcsMetric, LaunchType, PropagatedTagSource } from '../../lib/base/base-service';
 import { PlacementConstraint, PlacementStrategy } from '../../lib/placement';
 import { addDefaultCapacityProvider } from '../util';
 
@@ -1595,6 +1595,39 @@ describe('ec2 service', () => {
           },
         },
       });
+    });
+
+    test('service connect metric alarm w/o service connect enabled', () => {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const vpc = new ec2.Vpc(stack, 'MyVpc', {});
+      const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+      addDefaultCapacityProvider(cluster, stack, vpc);
+      const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'Ec2TaskDef');
+
+      taskDefinition.addContainer('web', {
+        image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        memoryLimitMiB: 512,
+      });
+
+      const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
+
+      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+        cluster,
+        taskDefinition,
+        deploymentController: {
+          type: DeploymentControllerType.ECS,
+        },
+      });
+      service.enableDeploymentAlarms({
+        alarms: [myAlarm],
+        behavior: AlarmBehavior.FAIL_ON_ALARM,
+      });
+
+      // THEN
+      expect(() => {
+        service.createEcsMetricAlarm(EcsMetric.CPU_RESERVATION);
+      }).toThrow('Service connect must be enabled to set service connect metric alarms.');
     });
 
     test('errors if daemon and desiredCount both specified', () => {
