@@ -15,6 +15,7 @@ import {
   Stack,
   ArnFormat,
   FeatureFlags,
+  Names,
 } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
 
@@ -25,7 +26,6 @@ import { ICluster, CapacityProviderStrategy, ExecuteCommandLogging, Cluster } fr
 import { ContainerDefinition, Protocol } from '../container-definition';
 import { CfnService } from '../ecs.generated';
 import { LogDriver, LogDriverConfig } from '../log-drivers/log-driver';
-import { IMetric } from '@aws-cdk/aws-cloudwatch';
 
 /**
  * The interface for a service.
@@ -71,6 +71,7 @@ export interface DeploymentCircuitBreaker {
 
 /**
  * The ecs metric name
+ * Units of this metrics are in form of percentages
  */
 export enum EcsMetric {
   /**
@@ -729,7 +730,10 @@ export abstract class BaseService extends Resource
   }
 
   /**
-   *   Add an alarm based on ECS metric
+   *   Add an alarm based on ECS metric which appended to the list of deployment alarms at synthesis time
+   *   Customize the alarm threshold and evaluationPeriods using 2nd argument ecsMetricAlarmProps.
+   *   `threshold  value 85`
+   *   `evaluationPeriods value 3`
   */
   public createEcsMetricAlarm(metric: EcsMetric, ecsMetricAlarmProps?: EcsMetricAlarmProps): cloudwatch.Alarm {
     // Throw an error if service connect is not configured
@@ -737,12 +741,22 @@ export abstract class BaseService extends Resource
       throw new Error('Service connect must be enabled to set service connect metric alarms.');
     }
     const ecsMetric = this.metric(metric, ecsMetricAlarmProps?.metricProps);
-    const metricAlarm = new cloudwatch.Alarm(this, `${metric}Alarm`, ecsMetricAlarmProps?.useAsDeploymentAlarm && ecsMetricAlarmProps?.alarmProps ? ecsMetricAlarmProps.alarmProps : {
-      metric: ecsMetric as IMetric,
-      threshold: ecsMetricAlarmProps?.alarmProps?.threshold || 1,
-      evaluationPeriods: ecsMetricAlarmProps?.alarmProps?.evaluationPeriods || 1,
-    });
-    this.deploymentAlarms?.alarmNames.push(metricAlarm.alarmName);
+    const alarmName = Names.uniqueId(this);
+    const metricAlarm = new cloudwatch.Alarm(this, alarmName,
+      ecsMetricAlarmProps?.useAsDeploymentAlarm && ecsMetricAlarmProps?.alarmProps ? ecsMetricAlarmProps.alarmProps : {
+        metric: ecsMetric,
+        threshold: ecsMetricAlarmProps?.alarmProps?.threshold || 85,
+        evaluationPeriods: ecsMetricAlarmProps?.alarmProps?.evaluationPeriods || 3,
+        alarmName,
+      });
+    if (!this.deploymentAlarms) {
+      this.deploymentAlarms = {
+        enable: true,
+        rollback: true,
+        alarmNames: [],
+      };
+    }
+    this.deploymentAlarms.alarmNames.push(metricAlarm.node.id);
     return metricAlarm;
   }
 
