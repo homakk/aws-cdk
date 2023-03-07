@@ -15,6 +15,7 @@ import {
   Stack,
   ArnFormat,
   FeatureFlags,
+  Names,
 } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
 
@@ -66,6 +67,50 @@ export interface DeploymentCircuitBreaker {
    * @default false
    */
   readonly rollback?: boolean;
+}
+
+/**
+ * The ecs metric name
+ * Units of this metrics are in form of percentages
+ */
+export enum EcsMetric {
+  /**
+   * CpuReservation Metric
+   */
+  CPU_RESERVATION = 'CpuReservation',
+  /**
+   * CpuUtilization Metric
+   */
+  CPU_UTILIZATION = 'CpuUtilization',
+  /**
+   * MemoryReservation Metric
+   */
+  MEMORY_RESERVATION = 'MemoryReservation',
+  /**
+   * MemoryUtilization Metric
+   */
+  MEMORY_UTILIZATION = 'MemoryUtilization',
+}
+
+/**
+ * The ecs metric alarm props
+ */
+export interface EcsMetricAlarmProps {
+  /**
+   * Alarm props
+   * @default - Alarm props to be used for Ecs metric alarm
+   */
+  readonly alarmProps?: cloudwatch.AlarmProps;
+  /**
+   * Metric props
+   * @default - Metric props to be used for Ecs metric alarm
+   */
+  readonly metricProps?: cloudwatch.MetricProps;
+  /**
+   * Whether to use as deployment alarm
+   * @default false
+   */
+  readonly useAsDeploymentAlarm: boolean;
 }
 
 /**
@@ -682,6 +727,37 @@ export abstract class BaseService extends Resource
       enable: true,
       rollback: alarmConfig.behavior !== AlarmBehavior.FAIL_ON_ALARM,
     };
+  }
+
+  /**
+   *   Add an alarm based on ECS metric which appended to the list of deployment alarms at synthesis time
+   *   Customize the alarm threshold and evaluationPeriods using 2nd argument ecsMetricAlarmProps.
+   *   `threshold  value 85`
+   *   `evaluationPeriods value 3`
+  */
+  public createEcsMetricAlarm(metric: EcsMetric, ecsMetricAlarmProps?: EcsMetricAlarmProps): cloudwatch.Alarm {
+    // Throw an error if service connect is not configured
+    if (!this._serviceConnectConfig) {
+      throw new Error('Service connect must be enabled to set service connect metric alarms.');
+    }
+    const ecsMetric = this.metric(metric, ecsMetricAlarmProps?.metricProps);
+    const alarmName = Names.uniqueId(this);
+    const metricAlarm = new cloudwatch.Alarm(this, alarmName,
+      ecsMetricAlarmProps?.useAsDeploymentAlarm && ecsMetricAlarmProps?.alarmProps ? ecsMetricAlarmProps.alarmProps : {
+        metric: ecsMetric,
+        threshold: ecsMetricAlarmProps?.alarmProps?.threshold || 85,
+        evaluationPeriods: ecsMetricAlarmProps?.alarmProps?.evaluationPeriods || 3,
+        alarmName,
+      });
+    if (!this.deploymentAlarms) {
+      this.deploymentAlarms = {
+        enable: true,
+        rollback: true,
+        alarmNames: [],
+      };
+    }
+    this.deploymentAlarms.alarmNames.push(metricAlarm.node.id);
+    return metricAlarm;
   }
 
   /**   * Enable Service Connect
