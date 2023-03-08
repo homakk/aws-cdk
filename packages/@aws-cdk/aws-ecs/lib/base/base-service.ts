@@ -71,7 +71,7 @@ export interface DeploymentCircuitBreaker {
 
 /**
  * The ecs metric name
- * Units of this metrics are in form of percentages
+ * Units of this metrics are percentages
  */
 export enum EcsMetric {
   /**
