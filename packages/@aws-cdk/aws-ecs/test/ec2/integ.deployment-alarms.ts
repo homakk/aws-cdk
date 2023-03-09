@@ -1,8 +1,8 @@
 import * as autoscaling from '@aws-cdk/aws-autoscaling';
+import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as cdk from '@aws-cdk/core';
 import * as integ from '@aws-cdk/integ-tests';
-import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as ecs from '../../lib';
 
 const app = new cdk.App();

@@ -1772,7 +1772,7 @@ describe('ec2 service', () => {
           Alarms: {
             Enable: false,
             Rollback: true,
-            AlarmNames: [myAlarm.alarmName],
+            AlarmNames: [],
           },
         },
       });

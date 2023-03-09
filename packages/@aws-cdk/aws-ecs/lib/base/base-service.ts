@@ -738,6 +738,7 @@ export abstract class BaseService extends Resource
     if (this.deploymentAlarms) {
       this.deploymentAlarms = {
         ...this.deploymentAlarms,
+        alarmNames: [],
         enable: false,
       };
     }
