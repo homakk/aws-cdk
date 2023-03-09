@@ -53,6 +53,10 @@ new nodejs.NodejsFunction(this, 'MyFunction', {
 });
 ```
 
+The handler value will be automatically prefixed with the bundled output file name, `index.`,
+unless the handler value contains a `.` character, in which case the handler value is used as-is to
+allow for values needed by some Lambda extensions.
+
 For monorepos, the reference architecture becomes:
 
 ```plaintext
@@ -337,3 +341,16 @@ new nodejs.NodejsFunction(this, 'my-handler', {
 
 If you chose to customize the hash, you will need to make sure it is updated every time the asset
 changes, or otherwise it is possible that some deployments will not be invalidated.
+
+## Docker based bundling in complex Docker configurations
+
+By default the input and output of Docker based bundling is handled via bind mounts.
+In situtations where this does not work, like Docker-in-Docker setups or when using a remote Docker socket, you can configure an alternative, but slower, variant that also works in these situations.
+
+ ```ts
+ new nodejs.NodejsFunction(this, 'my-handler', {
+  bundling: {
+    bundlingFileAccess: BundlingFileAccess.VOLUME_COPY,
+  },
+});
+```
