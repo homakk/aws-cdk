@@ -626,6 +626,8 @@ export abstract class BaseService extends Resource
     const deploymentController = this.getDeploymentController(props);
     if (props.deploymentAlarms) {
       this.enableDeploymentAlarms(props.deploymentAlarms);
+    } else {
+      this.disableDeploymentAlarms();
     }
 
     this.resource = new CfnService(this, 'Service', {
@@ -727,6 +729,18 @@ export abstract class BaseService extends Resource
       enable: true,
       rollback: alarmConfig.behavior !== AlarmBehavior.FAIL_ON_ALARM,
     };
+  }
+
+  /**
+   *   Disassociate existing deployment alarms
+  */
+  public disableDeploymentAlarms() {
+    if (this.deploymentAlarms) {
+      this.deploymentAlarms = {
+        ...this.deploymentAlarms,
+        enable: false,
+      };
+    }
   }
 
   /**
