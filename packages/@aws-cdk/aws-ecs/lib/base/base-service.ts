@@ -77,11 +77,11 @@ export enum EcsMetric {
   /**
    * CpuReservation Metric
    */
-  CPU_RESERVATION = 'CpuReservation',
+  CPU_RESERVATION = 'CPUReservation',
   /**
    * CpuUtilization Metric
    */
-  CPU_UTILIZATION = 'CpuUtilization',
+  CPU_UTILIZATION = 'CPUUtilization',
   /**
    * MemoryReservation Metric
    */
@@ -737,8 +737,8 @@ export abstract class BaseService extends Resource
   public disableDeploymentAlarms() {
     if (this.deploymentAlarms) {
       this.deploymentAlarms = {
-        ...this.deploymentAlarms,
         alarmNames: [],
+        rollback: false,
         enable: false,
       };
     }

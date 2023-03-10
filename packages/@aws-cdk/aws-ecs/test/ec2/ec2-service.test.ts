@@ -1771,7 +1771,7 @@ describe('ec2 service', () => {
         DeploymentConfiguration: {
           Alarms: {
             Enable: false,
-            Rollback: true,
+            Rollback: false,
             AlarmNames: [],
           },
         },
