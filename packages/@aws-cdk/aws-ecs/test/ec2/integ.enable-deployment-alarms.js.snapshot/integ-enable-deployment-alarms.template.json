@@ -926,7 +926,8 @@
     "DeploymentConfiguration": {
      "Alarms": {
       "AlarmNames": [
-       "myAlarm"
+       "myAlarm",
+       "integenabledeploymentalarmsEC2Service0AB7BFB3"
       ],
       "Enable": true,
       "Rollback": true
@@ -940,6 +941,36 @@
     "TaskDefinition": {
      "Ref": "TaskDef54694570"
     }
+   }
+  },
+  "EC2ServiceintegenabledeploymentalarmsEC2Service0AB7BFB312DFE0E9": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "EvaluationPeriods": 3,
+    "AlarmName": "integenabledeploymentalarmsEC2Service0AB7BFB3",
+    "Dimensions": [
+     {
+      "Name": "ClusterName",
+      "Value": {
+       "Ref": "EC2CPClusterD5F0FD32"
+      }
+     },
+     {
+      "Name": "ServiceName",
+      "Value": {
+       "Fn::GetAtt": [
+        "EC2Service5392EF94",
+        "Name"
+       ]
+      }
+     }
+    ],
+    "MetricName": "MemoryReservation",
+    "Namespace": "AWS/ECS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Threshold": 85
    }
   }
  },

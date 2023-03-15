@@ -4,6 +4,7 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 import * as cdk from '@aws-cdk/core';
 import * as integ from '@aws-cdk/integ-tests';
 import * as ecs from '../../lib';
+import { EcsMetric } from '../../lib';
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'integ-enable-deployment-alarms');
@@ -44,6 +45,7 @@ const service = new ecs.Ec2Service(stack, 'EC2Service', {
 service.enableDeploymentAlarms({
   alarms: [myAlarm],
 });
+service.createEcsMetricAlarm(EcsMetric.MEMORY_RESERVATION);
 
 new integ.IntegTest(app, 'EnableDeploymentAlarms', {
   testCases: [stack],

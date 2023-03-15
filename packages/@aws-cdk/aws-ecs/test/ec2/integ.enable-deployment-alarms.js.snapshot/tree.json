@@ -1286,7 +1286,7 @@
                 },
                 "constructInfo": {
                   "fqn": "constructs.Construct",
-                  "version": "10.1.249"
+                  "version": "10.1.270"
                 }
               },
               "LifecycleHookDrainHook": {
@@ -1573,7 +1573,8 @@
                       "minimumHealthyPercent": 50,
                       "alarms": {
                         "alarmNames": [
-                          "myAlarm"
+                          "myAlarm",
+                          "integenabledeploymentalarmsEC2Service0AB7BFB3"
                         ],
                         "enable": true,
                         "rollback": true
@@ -1589,6 +1590,54 @@
                 },
                 "constructInfo": {
                   "fqn": "@aws-cdk/aws-ecs.CfnService",
+                  "version": "0.0.0"
+                }
+              },
+              "integenabledeploymentalarmsEC2Service0AB7BFB3": {
+                "id": "integenabledeploymentalarmsEC2Service0AB7BFB3",
+                "path": "integ-enable-deployment-alarms/EC2Service/integenabledeploymentalarmsEC2Service0AB7BFB3",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "integ-enable-deployment-alarms/EC2Service/integenabledeploymentalarmsEC2Service0AB7BFB3/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::CloudWatch::Alarm",
+                      "aws:cdk:cloudformation:props": {
+                        "comparisonOperator": "GreaterThanOrEqualToThreshold",
+                        "evaluationPeriods": 3,
+                        "alarmName": "integenabledeploymentalarmsEC2Service0AB7BFB3",
+                        "dimensions": [
+                          {
+                            "name": "ClusterName",
+                            "value": {
+                              "Ref": "EC2CPClusterD5F0FD32"
+                            }
+                          },
+                          {
+                            "name": "ServiceName",
+                            "value": {
+                              "Fn::GetAtt": [
+                                "EC2Service5392EF94",
+                                "Name"
+                              ]
+                            }
+                          }
+                        ],
+                        "metricName": "MemoryReservation",
+                        "namespace": "AWS/ECS",
+                        "period": 300,
+                        "statistic": "Average",
+                        "threshold": 85
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "@aws-cdk/aws-cloudwatch.CfnAlarm",
+                      "version": "0.0.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "@aws-cdk/aws-cloudwatch.Alarm",
                   "version": "0.0.0"
                 }
               }
@@ -1633,7 +1682,7 @@
                 "path": "EnableDeploymentAlarms/DefaultTest/Default",
                 "constructInfo": {
                   "fqn": "constructs.Construct",
-                  "version": "10.1.249"
+                  "version": "10.1.270"
                 }
               },
               "DeployAssert": {
@@ -1679,7 +1728,7 @@
         "path": "Tree",
         "constructInfo": {
           "fqn": "constructs.Construct",
-          "version": "10.1.249"
+          "version": "10.1.270"
         }
       }
     },

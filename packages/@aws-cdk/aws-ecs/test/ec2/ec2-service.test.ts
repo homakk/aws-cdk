@@ -1733,7 +1733,7 @@ describe('ec2 service', () => {
 
       // THEN
       expect(() => {
-        service.createEcsMetricAlarm(EcsMetric.CPU_RESERVATION);
+        service.createEcsMetricAlarm(EcsMetric.ACTIVE_CONNECTION_COUNT);
       }).toThrow('Service connect must be enabled to set service connect metric alarms.');
     });
 
