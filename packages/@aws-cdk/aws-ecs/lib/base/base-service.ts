@@ -94,10 +94,6 @@ export enum EcsMetric {
    * GPUReservation Metric
    */
   GPU_RESERVATION = 'GPUReservation',
-  /**
-   * ActiveConnectionCount Metric
-   */
-  ACTIVE_CONNECTION_COUNT = 'ActiveConnectionCount',
 }
 
 /**
@@ -759,10 +755,7 @@ export abstract class BaseService extends Resource
    *   `evaluationPeriods value 3`
   */
   public createEcsMetricAlarm(metric: EcsMetric, ecsMetricAlarmProps?: EcsMetricAlarmProps): cloudwatch.Alarm {
-    // Throw an error if service connect is not configured
-    if (isServiceConnectMetric(metric) && !this._serviceConnectConfig) {
-      throw new Error('Service connect must be enabled to set service connect metric alarms.');
-    }
+
     const ecsMetric = this.metric(metric, ecsMetricAlarmProps?.metricProps);
     const alarmName = Names.uniqueId(this);
     const metricAlarm = new cloudwatch.Alarm(this, alarmName,
@@ -1604,9 +1597,4 @@ function determineContainerNameAndPort(options: DetermineContainerNameAndPortOpt
   }
 
   return {};
-}
-
-function isServiceConnectMetric(metric: EcsMetric): boolean {
-  return ![EcsMetric.CPU_RESERVATION, EcsMetric.CPU_UTILIZATION, EcsMetric.MEMORY_RESERVATION,
-    EcsMetric.MEMORY_UTILIZATION, EcsMetric.GPU_RESERVATION].includes(metric);
 }

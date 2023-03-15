@@ -1703,39 +1703,37 @@ describe('ec2 service', () => {
         },
       });
     });
+    //   // GIVEN
+    //   const stack = new cdk.Stack();
+    //   const vpc = new ec2.Vpc(stack, 'MyVpc', {});
+    //   const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+    //   addDefaultCapacityProvider(cluster, stack, vpc);
+    //   const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'Ec2TaskDef');
 
-    test('service connect metric alarm w/o service connect enabled', () => {
-      // GIVEN
-      const stack = new cdk.Stack();
-      const vpc = new ec2.Vpc(stack, 'MyVpc', {});
-      const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
-      addDefaultCapacityProvider(cluster, stack, vpc);
-      const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'Ec2TaskDef');
+    //   taskDefinition.addContainer('web', {
+    //     image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+    //     memoryLimitMiB: 512,
+    //   });
 
-      taskDefinition.addContainer('web', {
-        image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
-        memoryLimitMiB: 512,
-      });
+    //   const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
 
-      const myAlarm = cloudwatch.Alarm.fromAlarmArn(stack, 'myAlarm', 'arn:aws:cloudwatch:us-east-1:1234567890:alarm:alarm1');
+    //   const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+    //     cluster,
+    //     taskDefinition,
+    //     deploymentController: {
+    //       type: DeploymentControllerType.ECS,
+    //     },
+    //   });
+    //   service.enableDeploymentAlarms({
+    //     alarms: [myAlarm],
+    //     behavior: AlarmBehavior.FAIL_ON_ALARM,
+    //   });
 
-      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
-        cluster,
-        taskDefinition,
-        deploymentController: {
-          type: DeploymentControllerType.ECS,
-        },
-      });
-      service.enableDeploymentAlarms({
-        alarms: [myAlarm],
-        behavior: AlarmBehavior.FAIL_ON_ALARM,
-      });
-
-      // THEN
-      expect(() => {
-        service.createEcsMetricAlarm(EcsMetric.ACTIVE_CONNECTION_COUNT);
-      }).toThrow('Service connect must be enabled to set service connect metric alarms.');
-    });
+    //   // THEN
+    //   expect(() => {
+    //     service.createEcsMetricAlarm(EcsMetric.ACTIVE_CONNECTION_COUNT);
+    //   }).toThrow('Service connect must be enabled to set service connect metric alarms.');
+    // });
 
     test('disassociate alarm config', () => {
       // GIVEN
