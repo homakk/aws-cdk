@@ -45,7 +45,7 @@ const service = new ecs.Ec2Service(stack, 'EC2Service', {
 service.enableDeploymentAlarms({
   alarms: [myAlarm],
 });
-service.createEcsMetricAlarm(EcsMetric.MEMORY_RESERVATION);
+service.createEcsMetricAlarm(EcsMetric.MEMORY_RESERVATION, { useAsDeploymentAlarm: true });
 
 new integ.IntegTest(app, 'EnableDeploymentAlarms', {
   testCases: [stack],

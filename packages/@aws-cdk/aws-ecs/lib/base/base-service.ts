@@ -759,20 +759,22 @@ export abstract class BaseService extends Resource
     const ecsMetric = this.metric(metric, ecsMetricAlarmProps?.metricProps);
     const alarmName = Names.uniqueId(this);
     const metricAlarm = new cloudwatch.Alarm(this, alarmName,
-      ecsMetricAlarmProps?.useAsDeploymentAlarm && ecsMetricAlarmProps?.alarmProps ? ecsMetricAlarmProps.alarmProps : {
+      ecsMetricAlarmProps?.alarmProps ? ecsMetricAlarmProps.alarmProps : {
         metric: ecsMetric,
         threshold: ecsMetricAlarmProps?.alarmProps?.threshold || 85,
         evaluationPeriods: ecsMetricAlarmProps?.alarmProps?.evaluationPeriods || 3,
         alarmName,
       });
-    if (!this.deploymentAlarms) {
-      this.deploymentAlarms = {
-        enable: true,
-        rollback: true,
-        alarmNames: [],
-      };
+    if (ecsMetricAlarmProps?.useAsDeploymentAlarm) {
+      if (!this.deploymentAlarms) {
+        this.deploymentAlarms = {
+          enable: true,
+          rollback: true,
+          alarmNames: [],
+        };
+      }
+      this.deploymentAlarms.alarmNames.push(metricAlarm.node.id);
     }
-    this.deploymentAlarms.alarmNames.push(metricAlarm.node.id);
     return metricAlarm;
   }
 
