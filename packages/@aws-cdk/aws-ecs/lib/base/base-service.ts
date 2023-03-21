@@ -94,6 +94,54 @@ export enum EcsMetric {
    * GPUReservation Metric
    */
   GPU_RESERVATION = 'GPUReservation',
+  /**
+   * ActiveConnectionCount Metric
+   */
+  ACTIVE_CONNECTION_COUNT = 'ActiveConnectionCount',
+  /**
+   * NewConnectionCount Metric
+   */
+  NEW_CONNECTION_COUNT = 'NewConnectionCount',
+  /**
+   * ProcessedBytes Metric
+   */
+  PROCESSED_BYTES = 'ProcessedBytes',
+  /**
+   * RequestCount Metric
+   */
+  REQUEST_COUNT = 'RequestCount',
+  /**
+   * GrpcRequestCount Metric
+   */
+  GRPC_REQUEST_COUNT = 'GrpcRequestCount',
+  /**
+   * HTTPCode_Target_2XX_Count Metric
+   */
+  HTTP_CODE_TARGET_2XX_COUNT = 'HTTPCode_Target_2XX_Count',
+  /**
+   * HTTPCode_Target_3XX_Count Metric
+   */
+  HTTP_CODE_TARGET_3XX_COUNT = 'HTTPCode_Target_3XX_Count',
+  /**
+   * HTTPCode_Target_4XX_Count Metric
+   */
+  HTTP_CODE_TARGET_4XX_COUNT = 'HTTPCode_Target_4XX_Count',
+  /**
+   * HTTPCode_Target_5XX_Count Metric
+   */
+  HTTP_CODE_TARGET_5XX_COUNT = 'HTTPCode_Target_5XX_Count',
+  /**
+   * RequestCountPerTarget Metric
+   */
+  REQUEST_COUNT_PER_TARGET = 'RequestCountPerTarget',
+  /**
+   * TargetProcessedBytes Metric
+   */
+  TARGET_PROCESSED_BYTES = 'TargetProcessedBytes',
+  /**
+   * TargetResponseTime Metric
+   */
+  TARGET_REESPONSE_TIME = 'TargetResponseTime',
 }
 
 /**
@@ -755,7 +803,10 @@ export abstract class BaseService extends Resource
    *   `evaluationPeriods value 3`
   */
   public createEcsMetricAlarm(metric: EcsMetric, ecsMetricAlarmProps?: EcsMetricAlarmProps): cloudwatch.Alarm {
-
+    // Throw an error if service connect is not configured
+    if (isServiceConnectMetric(metric) && !this._serviceConnectConfig) {
+      throw new Error('Service connect must be enabled to set service connect metric alarms.');
+    }
     const ecsMetric = this.metric(metric, ecsMetricAlarmProps?.metricProps);
     const alarmName = Names.uniqueId(this);
     const metricAlarm = new cloudwatch.Alarm(this, alarmName,
@@ -1599,4 +1650,9 @@ function determineContainerNameAndPort(options: DetermineContainerNameAndPortOpt
   }
 
   return {};
+}
+
+function isServiceConnectMetric(metric: EcsMetric): boolean {
+  return ![EcsMetric.CPU_RESERVATION, EcsMetric.CPU_UTILIZATION, EcsMetric.MEMORY_RESERVATION,
+    EcsMetric.MEMORY_UTILIZATION, EcsMetric.GPU_RESERVATION].includes(metric);
 }
