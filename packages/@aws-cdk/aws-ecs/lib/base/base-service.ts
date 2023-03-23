@@ -74,28 +74,45 @@ export interface DeploymentCircuitBreaker {
  */
 export class EcsMetric {
   /**
+   * Service Connect Metric Map
+   */
+  public static readonly SERVICE_CONNECT_METRIC_MAP: Record<string, string> = {
+    ActiveConnectionCount: 'ActiveConnectionCount',
+    NewConnectionCount: 'NewConnectionCount',
+    ProcessedBytes: 'ProcessedBytes',
+    RequestCount: 'RequestCount',
+    GrpcRequestCount: 'GrpcRequestCount',
+    HTTPCode_Target_2XX_Count: 'HTTPCode_Target_2XX_Count',
+    HTTPCode_Target_3XX_Count: 'HTTPCode_Target_3XX_Count',
+    HTTPCode_Target_4XX_Count: 'HTTPCode_Target_4XX_Count',
+    HTTPCode_Target_5XX_Count: 'HTTPCode_Target_5XX_Count',
+    RequestCountPerTarget: 'RequestCountPerTarget',
+    TargetProcessedBytes: 'TargetProcessedBytes',
+    TargetResponseTime: 'TargetResponseTime',
+  };
+  /**
    * CpuReservation Metric
-   * Units of this metric is percentages
+   * This metric is expressed in percent of total CPU reserved.
    */
   public static readonly CPU_RESERVATION = new EcsMetric('CPUReservation');
   /**
    * CpuUtilization Metric
-   * Units of this metrics is percentages
+   * This metric is expressed in percent of total CPU utlized.
    */
   public static readonly CPU_UTILIZATION = new EcsMetric('CPUUtilization');
   /**
    * MemoryReservation Metric
-   * Units of this metrics is percentages
+   * This metric is expressed in percent of total Memory reserved.
    */
   public static readonly MEMORY_RESERVATION = new EcsMetric('MemoryReservation');
   /**
    * MemoryUtilization Metric
-   * Units of this metrics is percentages
+   * This metric is expressed in percent of total Memory utilized.
    */
   public static readonly MEMORY_UTILIZATION = new EcsMetric('MemoryUtilization');
   /**
    * GPUReservation Metric
-   * Units of this metrics is percentages
+   * This metric is expressed in percent of total GPU reserved.
    */
   public static readonly GPU_RESERVATION = new EcsMetric('GPUReservation');
   /**
@@ -103,78 +120,78 @@ export class EcsMetric {
    * This metric is only available if you have configured Amazon ECS Service Connect
    * Units of this metric is Count
    */
-  public static readonly ACTIVE_CONNECTION_COUNT = new EcsMetric('ActiveConnectionCount');
+  public static readonly ACTIVE_CONNECTION_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.ActiveConnectionCount);
   /**
    * NewConnectionCount Metric
    * This metric is only available if you have configured Amazon ECS Service Connect
    * Units of this metric is Count
    */
-  public static readonly NEW_CONNECTION_COUNT = new EcsMetric('NewConnectionCount');
+  public static readonly NEW_CONNECTION_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.NewConnectionCount);
   /**
    * ProcessedBytes Metric
    * This metric is only available if you have configured Amazon ECS Service Connect
    * Units of this metric is Bytes
    */
-  public static readonly PROCESSED_BYTES = new EcsMetric('ProcessedBytes');
+  public static readonly PROCESSED_BYTES = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.ProcessedBytes);
   /**
    * RequestCount Metric
    * This metric is only available if you have configured Amazon ECS Service Connect
    * Units of this metric is Count
    */
-  public static readonly REQUEST_COUNT = new EcsMetric('RequestCount');
+  public static readonly REQUEST_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.RequestCount);
   /**
    * GrpcRequestCount Metric
    * This metric is only available if you have configured Amazon ECS Service Connect and
    * the appProtocol is GRPC in the port mapping in the task definition.
    * Units of this metric is Count
    */
-  public static readonly GRPC_REQUEST_COUNT = new EcsMetric('GrpcRequestCount');
+  public static readonly GRPC_REQUEST_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.GrpcRequestCount);
   /**
    * HTTPCode_Target_2XX_Count Metric
    * This metric is only available if you have configured Amazon ECS Service Connect and
    * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
    * Units of this metric is Count
    */
-  public static readonly HTTP_CODE_TARGET_2XX_COUNT = new EcsMetric('HTTPCode_Target_2XX_Count');
+  public static readonly HTTP_CODE_TARGET_2XX_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.HTTPCode_Target_2XX_Count);
   /**
    * HTTPCode_Target_3XX_Count Metric
    * This metric is only available if you have configured Amazon ECS Service Connect and
    * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
    * Units of this metric is Count
    */
-  public static readonly HTTP_CODE_TARGET_3XX_COUNT = new EcsMetric('HTTPCode_Target_3XX_Count');
+  public static readonly HTTP_CODE_TARGET_3XX_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.HTTPCode_Target_3XX_Count);
   /**
    * HTTPCode_Target_4XX_Count Metric
    * This metric is only available if you have configured Amazon ECS Service Connect and
    * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
    * Units of this metric is Count
    */
-  public static readonly HTTP_CODE_TARGET_4XX_COUNT = new EcsMetric('HTTPCode_Target_4XX_Count');
+  public static readonly HTTP_CODE_TARGET_4XX_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.HTTPCode_Target_4XX_Count);
   /**
    * HTTPCode_Target_5XX_Count Metric
    * This metric is only available if you have configured Amazon ECS Service Connect and
    * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
    * Units of this metric is Count
    */
-  public static readonly HTTP_CODE_TARGET_5XX_COUNT = new EcsMetric('HTTPCode_Target_5XX_Count');
+  public static readonly HTTP_CODE_TARGET_5XX_COUNT = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.HTTPCode_Target_5XX_Count);
   /**
    * RequestCountPerTarget Metric
    * This metric is only available if you have configured Amazon ECS Service Connect.
    * Units of this metric is Count
    */
-  public static readonly REQUEST_COUNT_PER_TARGET = new EcsMetric('RequestCountPerTarget');
+  public static readonly REQUEST_COUNT_PER_TARGET = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.RequestCountPerTarget);
   /**
    * TargetProcessedBytes Metric
    * This metric is only available if you have configured Amazon ECS Service Connect.
    * Units of this metric is Count
    */
-  public static readonly TARGET_PROCESSED_BYTES = new EcsMetric('TargetProcessedBytes');
+  public static readonly TARGET_PROCESSED_BYTES = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.TargetProcessedBytes);
   /**
    * TargetResponseTime Metric
    * This metric is only available if you have configured Amazon ECS Service Connect.
    * Units of this metric is Milliseconds
    */
-  public static readonly TARGET_RESPONSE_TIME = new EcsMetric('TargetResponseTime');
+  public static readonly TARGET_RESPONSE_TIME = new EcsMetric(EcsMetric.SERVICE_CONNECT_METRIC_MAP.TargetResponseTime);
 
   /**
    * Add custom metric
@@ -194,10 +211,7 @@ export class EcsMetric {
    * Determine if it's a service connect metric
    */
   public isServiceConnectMetric(): boolean {
-    return [EcsMetric.ACTIVE_CONNECTION_COUNT, EcsMetric.NEW_CONNECTION_COUNT, EcsMetric.PROCESSED_BYTES, EcsMetric.REQUEST_COUNT,
-      EcsMetric.GRPC_REQUEST_COUNT, EcsMetric.HTTP_CODE_TARGET_2XX_COUNT, EcsMetric.HTTP_CODE_TARGET_3XX_COUNT,
-      EcsMetric.HTTP_CODE_TARGET_4XX_COUNT, EcsMetric.HTTP_CODE_TARGET_5XX_COUNT, EcsMetric.REQUEST_COUNT_PER_TARGET,
-      EcsMetric.TARGET_PROCESSED_BYTES, EcsMetric.TARGET_RESPONSE_TIME].some((ecsMetric: EcsMetric) => ecsMetric.customValue === this.customValue);
+    return !!EcsMetric.SERVICE_CONNECT_METRIC_MAP[this.customValue];
   }
 }
 
