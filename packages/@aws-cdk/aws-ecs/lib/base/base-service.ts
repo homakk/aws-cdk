@@ -70,78 +70,135 @@ export interface DeploymentCircuitBreaker {
 }
 
 /**
- * The ecs metric name
- * Units of this metrics are percentages
+ * The ecs metric class
  */
-export enum EcsMetric {
+export class EcsMetric {
   /**
    * CpuReservation Metric
+   * Units of this metric is percentages
    */
-  CPU_RESERVATION = 'CPUReservation',
+  public static readonly CPU_RESERVATION = new EcsMetric('CPUReservation');
   /**
    * CpuUtilization Metric
+   * Units of this metrics is percentages
    */
-  CPU_UTILIZATION = 'CPUUtilization',
+  public static readonly CPU_UTILIZATION = new EcsMetric('CPUUtilization');
   /**
    * MemoryReservation Metric
+   * Units of this metrics is percentages
    */
-  MEMORY_RESERVATION = 'MemoryReservation',
+  public static readonly MEMORY_RESERVATION = new EcsMetric('MemoryReservation');
   /**
    * MemoryUtilization Metric
+   * Units of this metrics is percentages
    */
-  MEMORY_UTILIZATION = 'MemoryUtilization',
+  public static readonly MEMORY_UTILIZATION = new EcsMetric('MemoryUtilization');
   /**
    * GPUReservation Metric
+   * Units of this metrics is percentages
    */
-  GPU_RESERVATION = 'GPUReservation',
+  public static readonly GPU_RESERVATION = new EcsMetric('GPUReservation');
   /**
    * ActiveConnectionCount Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect
+   * Units of this metric is Count
    */
-  ACTIVE_CONNECTION_COUNT = 'ActiveConnectionCount',
+  public static readonly ACTIVE_CONNECTION_COUNT = new EcsMetric('ActiveConnectionCount');
   /**
    * NewConnectionCount Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect
+   * Units of this metric is Count
    */
-  NEW_CONNECTION_COUNT = 'NewConnectionCount',
+  public static readonly NEW_CONNECTION_COUNT = new EcsMetric('NewConnectionCount');
   /**
    * ProcessedBytes Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect
+   * Units of this metric is Bytes
    */
-  PROCESSED_BYTES = 'ProcessedBytes',
+  public static readonly PROCESSED_BYTES = new EcsMetric('ProcessedBytes');
   /**
    * RequestCount Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect
+   * Units of this metric is Count
    */
-  REQUEST_COUNT = 'RequestCount',
+  public static readonly REQUEST_COUNT = new EcsMetric('RequestCount');
   /**
    * GrpcRequestCount Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect and
+   * the appProtocol is GRPC in the port mapping in the task definition.
+   * Units of this metric is Count
    */
-  GRPC_REQUEST_COUNT = 'GrpcRequestCount',
+  public static readonly GRPC_REQUEST_COUNT = new EcsMetric('GrpcRequestCount');
   /**
    * HTTPCode_Target_2XX_Count Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect and
+   * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
+   * Units of this metric is Count
    */
-  HTTP_CODE_TARGET_2XX_COUNT = 'HTTPCode_Target_2XX_Count',
+  public static readonly HTTP_CODE_TARGET_2XX_COUNT = new EcsMetric('HTTPCode_Target_2XX_Count');
   /**
    * HTTPCode_Target_3XX_Count Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect and
+   * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
+   * Units of this metric is Count
    */
-  HTTP_CODE_TARGET_3XX_COUNT = 'HTTPCode_Target_3XX_Count',
+  public static readonly HTTP_CODE_TARGET_3XX_COUNT = new EcsMetric('HTTPCode_Target_3XX_Count');
   /**
    * HTTPCode_Target_4XX_Count Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect and
+   * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
+   * Units of this metric is Count
    */
-  HTTP_CODE_TARGET_4XX_COUNT = 'HTTPCode_Target_4XX_Count',
+  public static readonly HTTP_CODE_TARGET_4XX_COUNT = new EcsMetric('HTTPCode_Target_4XX_Count');
   /**
    * HTTPCode_Target_5XX_Count Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect and
+   * the appProtocol is HTTP or HTTP2 in the port mapping in the task definition.
+   * Units of this metric is Count
    */
-  HTTP_CODE_TARGET_5XX_COUNT = 'HTTPCode_Target_5XX_Count',
+  public static readonly HTTP_CODE_TARGET_5XX_COUNT = new EcsMetric('HTTPCode_Target_5XX_Count');
   /**
    * RequestCountPerTarget Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect.
+   * Units of this metric is Count
    */
-  REQUEST_COUNT_PER_TARGET = 'RequestCountPerTarget',
+  public static readonly REQUEST_COUNT_PER_TARGET = new EcsMetric('RequestCountPerTarget');
   /**
    * TargetProcessedBytes Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect.
+   * Units of this metric is Count
    */
-  TARGET_PROCESSED_BYTES = 'TargetProcessedBytes',
+  public static readonly TARGET_PROCESSED_BYTES = new EcsMetric('TargetProcessedBytes');
   /**
    * TargetResponseTime Metric
+   * This metric is only available if you have configured Amazon ECS Service Connect.
+   * Units of this metric is Milliseconds
    */
-  TARGET_REESPONSE_TIME = 'TargetResponseTime',
+  public static readonly TARGET_RESPONSE_TIME = new EcsMetric('TargetResponseTime');
+
+  /**
+   * Add custom metric
+   */
+  public static custom(value: string) {
+    return new EcsMetric(value);
+  }
+
+  public constructor(
+    /**
+     * customValue refers to metric name
+     */
+    public readonly customValue: string,
+  ) { }
+
+  /**
+   * Determine if it's a service connect metric
+   */
+  public isServiceConnectMetric(): boolean {
+    return [EcsMetric.ACTIVE_CONNECTION_COUNT, EcsMetric.NEW_CONNECTION_COUNT, EcsMetric.PROCESSED_BYTES, EcsMetric.REQUEST_COUNT,
+      EcsMetric.GRPC_REQUEST_COUNT, EcsMetric.HTTP_CODE_TARGET_2XX_COUNT, EcsMetric.HTTP_CODE_TARGET_3XX_COUNT,
+      EcsMetric.HTTP_CODE_TARGET_4XX_COUNT, EcsMetric.HTTP_CODE_TARGET_5XX_COUNT, EcsMetric.REQUEST_COUNT_PER_TARGET,
+      EcsMetric.TARGET_PROCESSED_BYTES, EcsMetric.TARGET_RESPONSE_TIME].some((ecsMetric: EcsMetric) => ecsMetric.customValue === this.customValue);
+  }
 }
 
 /**
@@ -804,10 +861,10 @@ export abstract class BaseService extends Resource
   */
   public createEcsMetricAlarm(metric: EcsMetric, ecsMetricAlarmProps?: EcsMetricAlarmProps): cloudwatch.Alarm {
     // Throw an error if service connect is not configured
-    if (isServiceConnectMetric(metric) && !this._serviceConnectConfig) {
+    if (metric.isServiceConnectMetric() && !this._serviceConnectConfig) {
       throw new Error('Service connect must be enabled to set service connect metric alarms.');
     }
-    const ecsMetric = this.metric(metric, ecsMetricAlarmProps?.metricProps);
+    const ecsMetric = this.metric(metric.customValue, ecsMetricAlarmProps?.metricProps);
     const alarmName = Names.uniqueId(this);
     const metricAlarm = new cloudwatch.Alarm(this, alarmName,
       ecsMetricAlarmProps?.alarmProps ? ecsMetricAlarmProps.alarmProps : {
@@ -1650,9 +1707,4 @@ function determineContainerNameAndPort(options: DetermineContainerNameAndPortOpt
   }
 
   return {};
-}
-
-function isServiceConnectMetric(metric: EcsMetric): boolean {
-  return ![EcsMetric.CPU_RESERVATION, EcsMetric.CPU_UTILIZATION, EcsMetric.MEMORY_RESERVATION,
-    EcsMetric.MEMORY_UTILIZATION, EcsMetric.GPU_RESERVATION].includes(metric);
 }
