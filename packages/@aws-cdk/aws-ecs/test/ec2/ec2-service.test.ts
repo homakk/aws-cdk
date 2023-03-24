@@ -1847,6 +1847,86 @@ describe('ec2 service', () => {
       });
     });
 
+    test('custom service connect metric alarm w/o service connect enabled', () => {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const vpc = new ec2.Vpc(stack, 'MyVpc', {});
+      const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+      addDefaultCapacityProvider(cluster, stack, vpc);
+      const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'Ec2TaskDef');
+
+      taskDefinition.addContainer('web', {
+        image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        memoryLimitMiB: 512,
+      });
+
+      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+        cluster,
+        taskDefinition,
+        deploymentController: {
+          type: DeploymentControllerType.ECS,
+        },
+      });
+
+      // THEN
+      expect(() => {
+        const customSCMetric = new EcsMetric('MetricConnectionCount', { isServiceConnectMetric: true });
+        service.createEcsMetricAlarm(customSCMetric);
+      }).toThrow('Service connect must be enabled to set service connect metric alarms.');
+    });
+
+    test('custom service connect metric alarm with service connect enabled', () => {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const vpc = new ec2.Vpc(stack, 'MyVpc', {});
+      const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
+      addDefaultCapacityProvider(cluster, stack, vpc);
+      const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'Ec2TaskDef');
+      const customSCMetric = new EcsMetric('MetricConnectionCount', { isServiceConnectMetric: true });
+
+      taskDefinition.addContainer('web', {
+        image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        memoryLimitMiB: 512,
+        portMappings: [
+          {
+            containerPort: 80,
+            name: 'api',
+          },
+        ],
+      });
+      cluster.addDefaultCloudMapNamespace({
+        name: 'cool',
+      });
+
+      const service = new ecs.Ec2Service(stack, 'Ec2Service', {
+        cluster,
+        taskDefinition,
+        deploymentController: {
+          type: DeploymentControllerType.ECS,
+        },
+      });
+      service.enableServiceConnect({
+        services: [
+          {
+            portMappingName: 'api',
+          },
+        ],
+      });
+      const alarm = service.createEcsMetricAlarm(customSCMetric, { useAsDeploymentAlarm: true });
+
+      // THEN
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::ECS::Service', {
+        DeploymentConfiguration: {
+          Alarms: {
+            Enable: true,
+            Rollback: true,
+            AlarmNames: [alarm.node.id],
+          },
+        },
+      });
+    });
+
     test('disassociate alarm config', () => {
       // GIVEN
       const stack = new cdk.Stack();

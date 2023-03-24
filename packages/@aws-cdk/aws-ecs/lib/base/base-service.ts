@@ -70,6 +70,22 @@ export interface DeploymentCircuitBreaker {
 }
 
 /**
+ * The ECS metric enum props
+ */
+export interface EcsMetricEnumProps {
+  /**
+   * Whether it is a service connect metric
+   * @default false
+   */
+  readonly isServiceConnectMetric?: boolean;
+  /**
+   * Whether it is not a service connect metric
+   * @default false
+   */
+  readonly isOtherServiceMetric?: boolean;
+}
+
+/**
  * The ecs metric class
  */
 export class EcsMetric {
@@ -196,8 +212,8 @@ export class EcsMetric {
   /**
    * Add custom metric
    */
-  public static custom(value: string) {
-    return new EcsMetric(value);
+  public static custom(value: string, ecsMetricProps?: EcsMetricEnumProps) {
+    return new EcsMetric(value, ecsMetricProps);
   }
 
   public constructor(
@@ -205,7 +221,16 @@ export class EcsMetric {
      * customValue refers to metric name
      */
     public readonly customValue: string,
-  ) { }
+    /**
+     * Ecs Metric props
+     */
+    public readonly ecsMetricProps?: EcsMetricEnumProps,
+  ) {
+    if (ecsMetricProps?.isServiceConnectMetric) {
+      // Update service connect metric map with custom service connect metric
+      EcsMetric.SERVICE_CONNECT_METRIC_MAP[customValue] = customValue;
+    }
+  }
 
   /**
    * Determine if it's a service connect metric
